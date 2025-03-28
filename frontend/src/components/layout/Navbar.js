@@ -3,6 +3,7 @@ import { Layout, Menu, Button, Drawer, Typography, Space } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
+import logo from '../../assets/logo.png';
 
 const { Header } = Layout;
 
@@ -42,7 +43,10 @@ const Navbar = () => {
     <Header style={{ position: 'sticky', top: 0, zIndex: 1, width: '100%', backgroundColor: '#2C3E50', padding: '0 16px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography.Title level={4} style={{ margin: 0, lineHeight: '64px' }}>
-          <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>懂研网</Link>
+          <Link to="/" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <img src={logo} alt="懂研网Logo" style={{ height: '32px', marginRight: '8px' }} />
+            懂研网
+          </Link>
         </Typography.Title>
 
         {isMobile ? (
