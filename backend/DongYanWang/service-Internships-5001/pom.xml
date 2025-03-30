@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>service-User-8001</artifactId>
+    <artifactId>service-Internships-5001</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -24,4 +24,5 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
 </project>

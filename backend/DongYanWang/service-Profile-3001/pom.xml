@@ -9,7 +9,25 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>service-User-8001</artifactId>
+    <artifactId>service-Profile-3001</artifactId>
+    <repositories>
+        <repository>
+            <id>aliyun-public</id>
+            <name>Aliyun Maven Repository</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>spring-cloud-alibaba</id>
+            <name>Spring Cloud Alibaba</name>
+            <url>https://maven.aliyun.com/repository/spring</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -24,4 +42,5 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
 </project>
