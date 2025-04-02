@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { ResponsiveProvider } from './contexts/ResponsiveContext';
 import reportWebVitals from './reportWebVitals';
 
 // 导入Ant Design全局样式
@@ -10,7 +11,9 @@ import 'antd/dist/reset.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <ResponsiveProvider>
+      <App />
+    </ResponsiveProvider>
   </React.StrictMode>
 );
 

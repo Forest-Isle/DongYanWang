@@ -1,4 +1,5 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import ResponsiveContext from '../../contexts/ResponsiveContext';
 import {
   Layout,
   Row,
@@ -8,7 +9,6 @@ import {
   Button,
   Tag,
   Divider,
-  Avatar,
   List,
   Space,
   Tabs,
@@ -17,9 +17,6 @@ import {
   Form,
   Rate,
   Modal,
-  Badge,
-  Dropdown,
-  Menu,
   Drawer,
   FloatButton
 } from 'antd';
@@ -139,22 +136,9 @@ const ProjectsPage = () => {
   });
 
   // 移动端控制状态
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useContext(ResponsiveContext);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
 
-  // 检测屏幕宽度变化，判断是否为移动端
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
   // 处理筛选变化
   const handleFilterChange = (name, value) => {
     setFilters(prev => ({
@@ -416,7 +400,7 @@ const ProjectsPage = () => {
                 bodyStyle={{ padding: 0 }}
               >
                 <Row>
-                  <Col xs={24} md={6}>
+                  {/* <Col xs={24} md={6}>
                     <div style={{
                       height: '100%',
                       overflow: 'hidden',
@@ -434,8 +418,8 @@ const ProjectsPage = () => {
                         }}
                       />
                     </div>
-                  </Col>
-                  <Col xs={24} md={18}>
+                  </Col> */}
+                  <Col xs={24} md={24}>
                     <div style={{ padding: 24 }}>
                       <Title level={4} style={{ marginTop: 0, fontWeight: 'bold', color: '#2C3E50' }}>
                         {project.title}

@@ -13,6 +13,8 @@ import InternshipsPage from './components/internships/InternshipsPage';
 import CompetitionsPage from './components/competitions/CompetitionsPage';
 import ProjectsPage from './components/projects/ProjectsPage';
 import ProfilePage from './components/profile/ProfilePage';
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
 
 // 配置Ant Design主题
 const theme = {
@@ -61,6 +63,8 @@ function App() {
           <Route path="/competitions" element={<CompetitionsPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

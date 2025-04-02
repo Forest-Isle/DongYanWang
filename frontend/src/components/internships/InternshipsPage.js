@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import ResponsiveContext from '../../contexts/ResponsiveContext';
 import {
   Layout,
   Typography,
@@ -59,7 +60,7 @@ const mockInternships = [
       school: '清华大学',
       major: '计算机科学与技术',
     },
-    image: 'https://img.themesbrand.com/velzon/images/img-1.gif',
+    image: 'https://lf3-ea.bytetos.com/obj/eaoffice/ies/bytedance_official/_next/static/images/0-390b5def140dc370854c98b8e82ad394.png',
   },
   {
     id: 2,
@@ -83,7 +84,7 @@ const mockInternships = [
       school: '北京大学',
       major: '软件工程',
     },
-    image: 'https://img.themesbrand.com/velzon/images/img-2.gif',
+    image: 'https://www.tencent.com/img/banners/brief-1.jpg',
   },
   {
     id: 3,
@@ -107,7 +108,31 @@ const mockInternships = [
       school: '浙江大学',
       major: '人工智能',
     },
-    image: 'https://img.themesbrand.com/velzon/images/img-3.gif',
+    image: 'https://x0.ifengimg.com/ucms/2023_13/E8DC5A2C9752F14E1F8B30E7901EAEB92B467FD7_size77_w1035_h582.jpg',
+  },
+  {
+    id: 4,
+    title: '游卡-精英应届生',
+    company: '游卡',
+    location: '上海',
+    department: 'HRBP',
+    duration: '4个月',
+    salary: '250元/天',
+    description: '系统化和定制化培养体系加持，参与挑战性的项目内容，资深导师辅导，通过3-5年以远超行业平均水平的速度，培养成为游卡未来的核心专业或管理人才。期待与你，一起创造和分享快乐',
+    requirements: '对行业、竞品公司等专题分析，输出核心业务报告，为管理层决策提供支持，并在业务推进过程中持续提供支持',
+    tags: ['战略分析', '深度挖掘'],
+    postDate: '2023-07-01',
+    deadline: '2023-07-10',
+    views: 6666,
+    likes: 249,
+    comments: 66,
+    author: {
+      name: '张同学',
+      avatar: 'https://mui.com/static/images/avatar/4.jpg',
+      school: '中南大学',
+      major: '信息安全',
+    },
+    image: 'https://www.yokagames.com/wp-content/uploads/2022/12/%E5%AE%98%E7%BD%91kv%E6%A8%AA%E3%80%901920X940%E3%80%91.png',
   },
 ];
 
@@ -131,22 +156,8 @@ const InternshipsPage = () => {
   const [tabValue, setTabValue] = useState('1');
 
   // 移动端控制状态
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useContext(ResponsiveContext);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
-
-  // 检测屏幕宽度变化，判断是否为移动端
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
 
   // 处理筛选变化
   const handleFilterChange = (name, value) => {

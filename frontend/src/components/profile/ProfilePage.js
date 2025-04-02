@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import ResponsiveContext from '../../contexts/ResponsiveContext';
 import {
   Layout,
   Row,
@@ -7,10 +8,8 @@ import {
   Typography,
   Button,
   Tag,
-  Divider,
   Avatar,
   List,
-  Space,
   Tabs,
   Input,
   Modal,
@@ -22,7 +21,6 @@ import {
 import {
   EditOutlined,
   DeleteOutlined,
-  BookOutlined,
   FileTextOutlined,
   BankOutlined,
   TrophyOutlined,
@@ -32,11 +30,8 @@ import {
   MailOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
-  LinkedinOutlined,
-  GithubOutlined,
   LikeOutlined,
   CommentOutlined,
-  UserOutlined,
 } from '@ant-design/icons';
 
 const { Content } = Layout;
@@ -208,21 +203,7 @@ const ProfilePage = () => {
   const [notificationOpen, setNotificationOpen] = useState(false);
 
   // 移动端控制状态
-  const [isMobile, setIsMobile] = useState(false);
-
-  // 检测屏幕宽度变化，判断是否为移动端
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
+  const isMobile = useContext(ResponsiveContext);
 
   // 处理标签切换
   const handleTabChange = (key) => {

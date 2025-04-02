@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import ResponsiveContext from '../../contexts/ResponsiveContext';
 import {
   Layout,
   Typography,
@@ -110,23 +111,9 @@ const PapersPage = () => {
   const [papers, setPapers] = useState(mockPapers);
 
   // 移动端控制状态
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useContext(ResponsiveContext);
   const [searchDrawerOpen, setSearchDrawerOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
-
-  // 检测屏幕宽度变化，判断是否为移动端
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
 
   // 处理搜索参数变化
   const handleSearchChange = (e) => {
@@ -550,7 +537,7 @@ const PapersPage = () => {
         </Drawer>
 
         {/* 论文列表 */}
-        <Col xs={24} md={15}>
+        <Col xs={24} md={isMobile ? 24 : 15}>
           <List
             itemLayout="vertical"
             dataSource={papers}

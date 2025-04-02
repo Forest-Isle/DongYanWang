@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
+import ResponsiveContext from '../../contexts/ResponsiveContext';
 import {
   Layout,
   Typography,
@@ -13,8 +14,6 @@ import {
   Tag,
   Tabs,
   Avatar,
-  Rate,
-  Badge,
   List,
   Form,
   Tooltip,
@@ -59,8 +58,8 @@ const mockCompetitions = [
       school: '清华大学',
       major: '应用数学',
     },
-    image: 'https://img.themesbrand.com/velzon/images/img-4.gif',
-    videoLink: 'https://www.bilibili.com/video/BV1Gx411w7CY',
+    image: 'https://tse1-mm.cn.bing.net/th/id/OIP-C.HfhdkiEDctWstna5EgyNGQHaDJ',
+    videoLink: '',
   },
   {
     id: 2,
@@ -83,8 +82,8 @@ const mockCompetitions = [
       school: '北京大学',
       major: '计算机科学',
     },
-    image: 'https://img.themesbrand.com/velzon/images/img-5.gif',
-    videoLink: 'https://www.bilibili.com/video/BV1Jx411L7RY',
+    image: 'https://sct.cup.edu.cn/static/uploads/res/comp202211/16684044146885.png',
+    videoLink: '',
   },
   {
     id: 3,
@@ -107,7 +106,7 @@ const mockCompetitions = [
       school: '浙江大学',
       major: '工商管理',
     },
-    image: 'https://img.themesbrand.com/velzon/images/img-6.gif',
+    image: 'https://youth.njau.edu.cn/__local/B/6F/60/7525CC10C98923FD0E73606B8CB_582C6B8B_5B390.jpg',
     videoLink: 'https://www.bilibili.com/video/BV1Kx411M7LN',
   },
 ];
@@ -132,22 +131,8 @@ const CompetitionsPage = () => {
   const [tabValue, setTabValue] = useState('1');
 
   // 移动端控制状态
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useContext(ResponsiveContext);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
-
-  // 检测屏幕宽度变化，判断是否为移动端
-  useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkIsMobile();
-    window.addEventListener('resize', checkIsMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkIsMobile);
-    };
-  }, []);
 
   // 处理筛选变化
   const handleFilterChange = (name, value) => {
