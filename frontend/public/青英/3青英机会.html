@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>青英机会 - 科研项目与课题组招生信息平台</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Microsoft YaHei", Arial, sans-serif;
+      }
+      body {
+        background-color: #f6f6f6;
+        color: #333;
+        line-height: 1.5;
+      }
+
+      /* 顶部导航栏样式优化 */
+      .header {
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+      }
+      .logo-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        margin-right: 10px;
+        object-fit: contain;
+      }
+      .logo-text {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1890ff;
+      }
+      .nav-menu {
+        display: flex;
+      }
+      .nav-item {
+        padding: 0 15px;
+        font-size: 18px;
+        color: #555;
+        cursor: pointer;
+        position: relative;
+      }
+      .nav-item:hover {
+        color: #1890ff;
+      }
+      .nav-item.active {
+        color: #1890ff;
+        font-weight: bold;
+      }
+      .nav-item.active::after {
+        content: "";
+        position: absolute;
+        bottom: -15px;
+        left: 15px;
+        right: 15px;
+        height: 3px;
+        background-color: #1890ff;
+      }
+      .user-actions {
+        display: flex;
+        align-items: center;
+      }
+      .user-action {
+        margin-left: 20px;
+        color: #666;
+        font-size: 17px;
+        cursor: pointer;
+      }
+      .user-action:hover {
+        color: #1890ff;
+      }
+      .user-action.highlight {
+        color: #1890ff;
+        font-weight: bold;
+      }
+
+      /* 搜索区域样式优化 */
+      .search-section {
+        background: linear-gradient(135deg, #1890ff 0%, #36c6ff 100%);
+        padding: 40px 0;
+      }
+      .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        text-align: center;
+      }
+      .search-title {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .search-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        margin-bottom: 30px;
+      }
+      .search-box {
+        display: flex;
+        max-width: 700px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .search-type {
+        width: 120px;
+        border: none;
+        background-color: #f9f9f9;
+        padding: 0 15px;
+        font-size: 18px;
+        outline: none;
+        border-right: 1px solid #eee;
+      }
+      .search-input {
+        flex: 1;
+        border: none;
+        padding: 0 20px;
+        font-size: 18px;
+        height: 50px;
+        outline: none;
+      }
+      .search-button {
+        width: 100px;
+        border: none;
+        background-color: #1890ff;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .search-button:hover {
+        background-color: #0c7ad8;
+      }
+
+      /* 主内容区域样式优化 */
+      .main-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: flex;
+        gap: 20px;
+      }
+
+      /* 左侧边栏样式优化 */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+      }
+      .filter-card {
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+      .filter-header {
+        padding: 15px;
+        font-size: 16px;
+        font-weight: bold;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .filter-header .icon {
+        color: #999;
+      }
+      .filter-body {
+        padding: 10px 15px;
+      }
+      .filter-item {
+        padding: 10px 0;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        border-bottom: 1px solid #f5f5f5;
+      }
+      .filter-item:last-child {
+        border-bottom: none;
+      }
+      .filter-item:hover {
+        color: #1890ff;
+      }
+      .filter-item.active {
+        color: #1890ff;
+        font-weight: bold;
+      }
+      .filter-checkbox {
+        margin-right: 10px;
+      }
+      .filter-count {
+        margin-left: auto;
+        color: #999;
+        font-size: 13px;
+      }
+
+      /* 主内容样式优化 */
+      .content {
+        flex: 1;
+      }
+      .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .content-title {
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .sort-options {
+        display: flex;
+        align-items: center;
+      }
+      .sort-option {
+        margin-left: 15px;
+        font-size: 17px;
+        color: #666;
+        cursor: pointer;
+      }
+      .sort-option.active {
+        color: #1890ff;
+        font-weight: bold;
+      }
+
+      /* 项目卡片样式优化 */
+      .project-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .project-card {
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .project-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .project-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+      }
+      .project-title {
+        font-size: 17px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+      }
+      .project-school {
+        color: #666;
+        font-size: 17px;
+      }
+      .project-logo {
+        width: 50px;
+        height: 50px;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #1890ff;
+        font-size: 16px;
+      }
+      .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 15px 0;
+        gap: 8px;
+      }
+      .project-tag {
+        background-color: #f0f7ff;
+        color: #1890ff;
+        padding: 4px 10px;
+        border-radius: 3px;
+        font-size: 13px;
+      }
+      .project-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+      }
+      .project-stipend {
+        color: #ff4d4f;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .project-deadline {
+        color: #999;
+        font-size: 13px;
+      }
+
+      /* 热门项目样式优化 */
+      .featured-section {
+        margin-bottom: 30px;
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+      .section-title {
+        font-size: 18px;
+        font-weight: bold;
+        position: relative;
+        padding-left: 12px;
+      }
+      .section-title::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 4px;
+        bottom: 4px;
+        width: 4px;
+        background-color: #1890ff;
+        border-radius: 2px;
+      }
+      .section-more {
+        color: #1890ff;
+        font-size: 17px;
+        cursor: pointer;
+      }
+      .featured-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      }
+      .featured-card {
+        background-color: white;
+        border-radius: 4px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .featured-image {
+        height: 120px;
+        background-color: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1890ff;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .featured-content {
+        padding: 15px;
+      }
+      .featured-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .featured-desc {
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 10px;
+        height: 40px;
+        overflow: hidden;
+      }
+      .featured-info {
+        display: flex;
+        justify-content: space-between;
+        color: #999;
+        font-size: 12px;
+      }
+
+      /* 分页样式优化 */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+      }
+      .page-item {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 5px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 17px;
+        border: 1px solid #d9d9d9;
+      }
+      .page-item:hover {
+        border-color: #1890ff;
+        color: #1890ff;
+      }
+      .page-item.active {
+        background-color: #1890ff;
+        color: white;
+        border-color: #1890ff;
+      }
+      .page-item.disabled {
+        color: #d9d9d9;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+      <div class="nav-container">
+        <div class="logo">
+          <img src="青英机会logo.png" class="logo-img">
+          <div class="logo-text">青英机会</div>
+        </div>
+        <div class="nav-menu">
+          <div class="nav-item">首页</div>
+          <div class="nav-item active">短期项目招聘</div>
+          <div class="nav-item">课题组招生</div>
+          <div class="nav-item">导师库</div>
+          <div class="nav-item">项目申请经验</div>
+          <div class="nav-item">学术资源</div>
+        </div>
+        <div class="user-actions">
+          <div class="user-action">登录</div>
+          <div class="user-action highlight">注册</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 搜索区域 -->
+    <section class="search-section">
+      <div class="search-container">
+        <h1 class="search-title">发现优质科研项目与课题组</h1>
+        <p class="search-subtitle">全国5000+导师课题组，10000+科研项目机会</p>
+        <div class="search-box">
+          <select class="search-type">
+            <option>项目类型</option>
+            <option>暑期科研</option>
+            <option>课题组</option>
+            <option>导师</option>
+          </select>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="搜索项目名称、导师、学校、研究方向..."
+          />
+          <button class="search-button">搜索</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 主内容区域 -->
+    <div class="main-container">
+      <!-- 左侧筛选栏 -->
+      <div class="sidebar">
+        <div class="filter-card">
+          <div class="filter-header">
+            项目类型
+            <span class="icon">▼</span>
+          </div>
+          <div class="filter-body">
+            <div class="filter-item active">
+              <span class="filter-checkbox">✓</span>
+              <span>国内暑期科研</span>
+              <span class="filter-count">328</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>国际暑期科研</span>
+              <span class="filter-count">156</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>企业项目招聘</span>
+              <span class="filter-count">423</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>高校科研项目招聘</span>
+              <span class="filter-count">215</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-card">
+          <div class="filter-header">
+            研究领域
+            <span class="icon">▼</span>
+          </div>
+          <div class="filter-body">
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>计算机科学</span>
+              <span class="filter-count">187</span>
+            </div>
+            <div class="filter-item active">
+              <span class="filter-checkbox">✓</span>
+              <span>人工智能</span>
+              <span class="filter-count">142</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>生物医学</span>
+              <span class="filter-count">98</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>材料科学</span>
+              <span class="filter-count">76</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>物理学</span>
+              <span class="filter-count">64</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-card">
+          <div class="filter-header">
+            学校类型
+            <span class="icon">▼</span>
+          </div>
+          <div class="filter-body">
+            <div class="filter-item active">
+              <span class="filter-checkbox">✓</span>
+              <span>985高校</span>
+              <span class="filter-count">156</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>211高校</span>
+              <span class="filter-count">203</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>双一流高校</span>
+              <span class="filter-count">187</span>
+            </div>
+            <div class="filter-item">
+              <span class="filter-checkbox">□</span>
+              <span>研究所</span>
+              <span class="filter-count">92</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主内容 -->
+      <div class="content">
+        <!-- 热门项目 -->
+        <div class="featured-section">
+          <div class="section-header">
+            <div class="section-title">热门推荐</div>
+            <div class="section-more">查看更多 ></div>
+          </div>
+          <div class="featured-grid">
+            <div class="featured-card">
+              <div class="featured-image"><img src="清华.png" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div class="featured-content">
+                <div class="featured-title">清华大学交叉信息研究院暑期科研</div>
+                <div class="featured-desc">
+                  面向全国高校本科生开放，提供人工智能、大数据等领域的科研训练
+                </div>
+                <div class="featured-info">
+                  <span>截止日期: 2023-05-15</span>
+                  <span>已有823人申请</span>
+                </div>
+              </div>
+            </div>
+            <div class="featured-card">
+              <div class="featured-image"><img src="北大.png" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div class="featured-content">
+                <div class="featured-title">北京大学前沿计算研究中心项目</div>
+                <div class="featured-desc">
+                  招收对计算机科学和人工智能有浓厚兴趣的优秀本科生
+                </div>
+                <div class="featured-info">
+                  <span>截止日期: 2023-05-20</span>
+                  <span>已有756人申请</span>
+                </div>
+              </div>
+            </div>
+            <div class="featured-card">
+              <div class="featured-image"><img src="中科院.png" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div class="featured-content">
+                <div class="featured-title">中科院计算所智能系统研究中心</div>
+                <div class="featured-desc">
+                  提供人工智能、机器学习、计算机视觉等方向的科研实践机会
+                </div>
+                <div class="featured-info">
+                  <span>截止日期: 2023-05-30</span>
+                  <span>已有612人申请</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 项目列表 -->
+        <div class="content-header">
+          <div class="content-title">科研项目 (328)</div>
+          <div class="sort-options">
+            <div class="sort-option active">最新发布</div>
+            <div class="sort-option">热门程度</div>
+            <div class="sort-option">截止日期</div>
+          </div>
+        </div>
+
+        <div class="project-list">
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <div class="project-title">
+                  清华大学交叉信息研究院暑期科研项目
+                </div>
+                <div class="project-school">清华大学 · 北京</div>
+              </div>
+              <div class="project-logo">清华</div>
+            </div>
+            <div class="project-tags">
+              <div class="project-tag">人工智能</div>
+              <div class="project-tag">机器学习</div>
+              <div class="project-tag">本科生/研究生</div>
+              <div class="project-tag">8-10周</div>
+            </div>
+            <div class="project-footer">
+              <div class="project-stipend">奖学金：3000-5000元/月</div>
+              <div class="project-deadline">截止日期：2023-05-15</div>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <div class="project-title">
+                  北京大学前沿计算研究中心科研助理
+                </div>
+                <div class="project-school">北京大学 · 北京</div>
+              </div>
+              <div class="project-logo">北大</div>
+            </div>
+            <div class="project-tags">
+              <div class="project-tag">计算机科学</div>
+              <div class="project-tag">数据分析</div>
+              <div class="project-tag">研究生优先</div>
+              <div class="project-tag">6个月以上</div>
+            </div>
+            <div class="project-footer">
+              <div class="project-stipend">奖学金：4000-6000元/月</div>
+              <div class="project-deadline">截止日期：2023-05-20</div>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <div class="project-title">
+                  复旦大学类脑智能科学与技术研究院暑期项目
+                </div>
+                <div class="project-school">复旦大学 · 上海</div>
+              </div>
+              <div class="project-logo">复旦</div>
+            </div>
+            <div class="project-tags">
+              <div class="project-tag">神经科学</div>
+              <div class="project-tag">类脑计算</div>
+              <div class="project-tag">本科三年级以上</div>
+              <div class="project-tag">8周</div>
+            </div>
+            <div class="project-footer">
+              <div class="project-stipend">奖学金：2500-4000元/月</div>
+              <div class="project-deadline">截止日期：2023-05-25</div>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <div class="project-title">
+                  中国科学院计算技术研究所科研实习生
+                </div>
+                <div class="project-school">中国科学院 · 北京</div>
+              </div>
+              <div class="project-logo">中科院</div>
+            </div>
+            <div class="project-tags">
+              <div class="project-tag">高性能计算</div>
+              <div class="project-tag">并行计算</div>
+              <div class="project-tag">本科/硕士</div>
+              <div class="project-tag">3-12个月</div>
+            </div>
+            <div class="project-footer">
+              <div class="project-stipend">奖学金：3500-5500元/月</div>
+              <div class="project-deadline">截止日期：2023-05-30</div>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <div class="project-title">
+                  浙江大学CAD&CG国家重点实验室暑期实习
+                </div>
+                <div class="project-school">浙江大学 · 杭州</div>
+              </div>
+              <div class="project-logo">浙大</div>
+            </div>
+            <div class="project-tags">
+              <div class="project-tag">计算机图形学</div>
+              <div class="project-tag">虚拟现实</div>
+              <div class="project-tag">本科生</div>
+              <div class="project-tag">8周</div>
+            </div>
+            <div class="project-footer">
+              <div class="project-stipend">奖学金：3000-4500元/月</div>
+              <div class="project-deadline">截止日期：2023-06-05</div>
+            </div>
+          </div>
+
+          <div class="project-card">
+            <div class="project-header">
+              <div>
+                <div class="project-title">
+                  上海交通大学人工智能研究院科研项目
+                </div>
+                <div class="project-school">上海交通大学 · 上海</div>
+              </div>
+              <div class="project-logo">交大</div>
+            </div>
+            <div class="project-tags">
+              <div class="project-tag">深度学习</div>
+              <div class="project-tag">计算机视觉</div>
+              <div class="project-tag">本科/硕士</div>
+              <div class="project-tag">3-6个月</div>
+            </div>
+            <div class="project-footer">
+              <div class="project-stipend">奖学金：4000-6000元/月</div>
+              <div class="project-deadline">截止日期：2023-06-10</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+          <div class="page-item disabled">«</div>
+          <div class="page-item active">1</div>
+          <div class="page-item">2</div>
+          <div class="page-item">3</div>
+          <div class="page-item">4</div>
+          <div class="page-item">5</div>
+          <div class="page-item">»</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

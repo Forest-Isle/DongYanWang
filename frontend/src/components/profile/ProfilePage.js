@@ -1,5 +1,4 @@
-import React, { useState, useContext } from 'react';
-import ResponsiveContext from '../../contexts/ResponsiveContext';
+import React, { useState } from 'react';
 import {
   Layout,
   Row,
@@ -202,9 +201,6 @@ const ProfilePage = () => {
   });
   const [notificationOpen, setNotificationOpen] = useState(false);
 
-  // 移动端控制状态
-  const isMobile = useContext(ResponsiveContext);
-
   // 处理标签切换
   const handleTabChange = (key) => {
     setTabValue(key);
@@ -313,7 +309,7 @@ const ProfilePage = () => {
   );
 
   return (
-    <Layout.Content style={{ padding: isMobile ? '24px 16px' : '24px 50px', position: 'relative' }}>
+    <Layout.Content style={{ padding: '24px 50px', position: 'relative' }}>
       {/* 个人信息卡片 */}
       <Card style={{ marginBottom: 24, overflow: 'hidden', borderRadius: 8 }}>
         {/* 封面图 */}
@@ -355,7 +351,7 @@ const ProfilePage = () => {
         {/* 用户信息 */}
         <div style={{ padding: 0, paddingTop: 0 }}>
           <Row gutter={24}>
-            <Col xs={24} md={6} style={{ marginTop: -40, textAlign: 'center' }}>
+            <Col span={6} style={{ marginTop: -40, textAlign: 'center' }}>
               <Avatar
                 size={120}
                 src={user.avatar}
@@ -386,7 +382,7 @@ const ProfilePage = () => {
               </div>
             </Col>
 
-            <Col xs={24} md={18}>
+            <Col span={18}>
               <div style={{ marginBottom: 24 }}>
                 <Title level={5} style={{ fontWeight: 'bold' }}>
                   个人简介
@@ -396,19 +392,19 @@ const ProfilePage = () => {
                 </Paragraph>
 
                 <Row gutter={16}>
-                  <Col xs={24} sm={8} md={8}>
+                  <Col span={8}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <MailOutlined style={{ marginRight: 8, color: 'rgba(0,0,0,0.45)' }} />
                       <Text type="secondary">{user.email}</Text>
                     </div>
                   </Col>
-                  <Col xs={24} sm={8} md={8}>
+                  <Col span={8}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <PhoneOutlined style={{ marginRight: 8, color: 'rgba(0,0,0,0.45)' }} />
                       <Text type="secondary">{user.phone}</Text>
                     </div>
                   </Col>
-                  <Col xs={24} sm={8} md={8}>
+                  <Col span={8}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <EnvironmentOutlined style={{ marginRight: 8, color: 'rgba(0,0,0,0.45)' }} />
                       <Text type="secondary">{user.location}</Text>
@@ -445,7 +441,7 @@ const ProfilePage = () => {
         {/* 统计信息 */}
         <div style={{ backgroundColor: '#f5f5f5', padding: 16, marginTop: 16 }}>
           <Row gutter={16} justify="center">
-            <Col xs={12} sm={6}>
+            <Col span={6}>
               <div style={{ textAlign: 'center' }}>
                 <Title level={4} style={{ marginBottom: 0, color: '#2C3E50' }}>
                   {user.stats.papers}
@@ -453,7 +449,7 @@ const ProfilePage = () => {
                 <Text type="secondary">论文</Text>
               </div>
             </Col>
-            <Col xs={12} sm={6}>
+            <Col span={6}>
               <div style={{ textAlign: 'center' }}>
                 <Title level={4} style={{ marginBottom: 0, color: '#2C3E50' }}>
                   {user.stats.projects}
@@ -461,7 +457,7 @@ const ProfilePage = () => {
                 <Text type="secondary">项目</Text>
               </div>
             </Col>
-            <Col xs={12} sm={6}>
+            <Col span={6}>
               <div style={{ textAlign: 'center' }}>
                 <Title level={4} style={{ marginBottom: 0, color: '#2C3E50' }}>
                   {user.stats.competitions}
@@ -469,7 +465,7 @@ const ProfilePage = () => {
                 <Text type="secondary">竞赛</Text>
               </div>
             </Col>
-            <Col xs={12} sm={6}>
+            <Col span={6}>
               <div style={{ textAlign: 'center' }}>
                 <Title level={4} style={{ marginBottom: 0, color: '#2C3E50' }}>
                   {user.stats.internships}

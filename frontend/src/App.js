@@ -8,11 +8,13 @@ import Navbar from './components/layout/Navbar';
 
 // 导入页面组件
 import HomePage from './components/home/HomePage';
-import PapersPage from './components/papers/PapersPage';
-import InternshipsPage from './components/internships/InternshipsPage';
-import CompetitionsPage from './components/competitions/CompetitionsPage';
-import ProjectsPage from './components/projects/ProjectsPage';
-import ProfilePage from './components/profile/ProfilePage';
+
+import { JournalsHomePage, JournalCategoryPage, JournalDetailPage } from './components/journals';
+import { SkillsHomePage, SkillCategoryPage, SkillDetailPage } from './components/skills';
+import { CompetitionsHomePage, CompetitionCategoryPage, CompetitionDetailPage } from './components/competitions';
+import { ProjectsHomePage, ProjectCategoryPage, ProjectDetailPage } from './components/projects';
+import { AdmissionsHomePage, AdmissionDetailPage } from './components/admissions';
+
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
 
@@ -57,14 +59,38 @@ function App() {
       <Router>
         <Navbar />
         <Routes>
+          {/* 首页 */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/papers" element={<PapersPage />} />
-          <Route path="/internships" element={<InternshipsPage />} />
-          <Route path="/competitions" element={<CompetitionsPage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+
+          {/* 期刊模块 */}
+          <Route path="/journals" element={<JournalsHomePage />} />
+          <Route path="/journals/category/:category" element={<JournalCategoryPage />} />
+          <Route path="/journals/detail/:detail" element={<JournalDetailPage />} />
+
+          {/* 技巧模块 */}
+          <Route path="/skills" element={<SkillsHomePage />} />
+          <Route path="/skills/category/:category" element={<SkillCategoryPage />} />
+          <Route path="/skills/detail/:detail" element={<SkillDetailPage />} />
+
+          {/* 竞赛模块 */}
+          <Route path="/competitions" element={<CompetitionsHomePage />} />
+          <Route path="/competitions/category/:category" element={<CompetitionCategoryPage />} />
+          <Route path="/competitions/detail/:id" element={<CompetitionDetailPage />} />
+
+          {/* 项目模块 */}
+          <Route path="/projects" element={<ProjectsHomePage />} />
+          <Route path="/projects/category/:category" element={<ProjectCategoryPage />} />
+          <Route path="/projects/detail/:projectId" element={<ProjectDetailPage />} />
+
+          {/* 招生机会模块 */}
+          <Route path="/admissions" element={<AdmissionsHomePage />} />
+          <Route path="/admissions/detail/:detail" element={<AdmissionDetailPage />} />
+
+          {/* 认证页面 */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
+          {/* 404页面 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

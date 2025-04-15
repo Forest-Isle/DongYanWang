@@ -1,12 +1,12 @@
 import React from 'react';
-import HeroSection from './HeroSection';
 import FeatureTiles from './FeatureTiles';
+import Content from './Content';
 
 const HomePage = () => {
   return (
-    <div>
-      <HeroSection />
+    <div style={{ backgroundColor: '#f5f5f5', minHeight: '100vh', marginTop: '-16px', paddingTop: '16px' }}>
       <FeatureTiles />
+      <Content />
     </div>
   );
 };
