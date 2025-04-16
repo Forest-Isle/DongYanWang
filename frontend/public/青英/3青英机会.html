@@ -16,6 +16,27 @@
         color: #333;
         line-height: 1.5;
       }
+      .home-float-btn {
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #1890ff;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.3s ease;
+      }
+      .home-float-btn:hover {
+        background-color: #096dd9;
+        transform: scale(1.1);
+      }
 
       /* 顶部导航栏样式优化 */
       .header {
@@ -428,11 +449,16 @@
     </style>
   </head>
   <body>
+      <div class="home-float-btn" onclick="window.location.href='../'">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </div>
     <!-- 顶部导航栏 -->
     <header class="header">
       <div class="nav-container">
         <div class="logo">
-          <img src="青英机会logo.png" class="logo-img">
+          <img src="images/青英机会logo.png" class="logo-img">
           <div class="logo-text">青英机会</div>
         </div>
         <div class="nav-menu">
@@ -579,7 +605,7 @@
           </div>
           <div class="featured-grid">
             <div class="featured-card">
-              <div class="featured-image"><img src="清华.png" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div class="featured-image"><img src="images/清华.png" style="width:100%;height:100%;object-fit:cover;"></div>
               <div class="featured-content">
                 <div class="featured-title">清华大学交叉信息研究院暑期科研</div>
                 <div class="featured-desc">
@@ -592,7 +618,7 @@
               </div>
             </div>
             <div class="featured-card">
-              <div class="featured-image"><img src="北大.png" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div class="featured-image"><img src="images/北大.png" style="width:100%;height:100%;object-fit:cover;"></div>
               <div class="featured-content">
                 <div class="featured-title">北京大学前沿计算研究中心项目</div>
                 <div class="featured-desc">
@@ -605,7 +631,7 @@
               </div>
             </div>
             <div class="featured-card">
-              <div class="featured-image"><img src="中科院.png" style="width:100%;height:100%;object-fit:cover;"></div>
+              <div class="featured-image"><img src="images/中科院.png" style="width:100%;height:100%;object-fit:cover;"></div>
               <div class="featured-content">
                 <div class="featured-title">中科院计算所智能系统研究中心</div>
                 <div class="featured-desc">

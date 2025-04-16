@@ -15,6 +15,27 @@
         background-color: #f5f5f5;
         font-size: 125%;
       }
+      .home-float-btn {
+        position: fixed;
+        left: 20px;
+        top: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #2196f3;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.3s ease;
+      }
+      .home-float-btn:hover {
+        background-color: #0d47a1;
+        transform: scale(1.1);
+      }
       .header {
         background-color: #fff;
         padding: 15px 0;
@@ -67,6 +88,19 @@
       .user-actions {
         display: flex;
         align-items: center;
+      }
+      .user-action {
+        margin-left: 20px;
+        color: #666;
+        font-size: 17px;
+        cursor: pointer;
+      }
+      .user-action:hover {
+        color: #2196f3;
+      }
+      .user-action.highlight {
+        color: #2196f3;
+        font-weight: bold;
       }
       .publish-btn {
         background-color: #2196f3;
@@ -278,7 +312,7 @@
         height: 30px;
       }
       /* 左侧边栏样式 */
-      /*.left-sidebar {
+      .left-sidebar {
         position: absolute;
         width: 230px;
         left: 0;
@@ -335,14 +369,18 @@
         color: #333;
         font-weight: 500;
       }
-        */
     </style>
   </head>
   <body>
+    <div class="home-float-btn" onclick="window.location.href='../'">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+    </div>
     <header class="header">
       <div class="container header-content">
         <div class="logo">
-          <img src="青英辅学logo.png" alt="青英辅学" />
+          <img src="images/青英辅学logo.png" alt="青英辅学" />
           <h1>青英辅学</h1>
         </div>
         <div class="search-bar">
@@ -351,6 +389,8 @@
         </div>
         <div class="user-actions">
           <a href="#" class="publish-btn">发布需求</a>
+          <div class="user-action">登录</div>
+          <div class="user-action highlight">注册</div>
         </div>
       </div>
     </header>
@@ -377,12 +417,12 @@
         <div class="banner-content">
           <div style="display: flex; gap: 10px">
             <img
-              src="展示图1.jpg"
+              src="images/展示图1.jpg"
               alt="展示图1"
               style="width: 49%; height: auto; border-radius: 8px"
             />
             <img
-              src="展示图2.jpg"
+              src="images/展示图2.jpg"
               alt="展示图2"
               style="width: 49%; height: auto; border-radius: 8px"
             />
@@ -463,8 +503,8 @@
         <div class="sidebar-card">
           <div class="sidebar-title">关注我们</div>
           <div class="sidebar-content" style="text-align: center">
-            <img src="qrcode.jpg" alt="微信公众号" class="qrcode" />
-            <p>扫码关注获取更多学术资源</p>
+            <!--<img src="qrcode.jpg" alt="微信公众号" class="qrcode" /> -->
+            <p style="text-align: left; font-size: 1.2em;">关注获取更多学术资源</p>
           </div>
         </div>
       </div>
@@ -473,21 +513,21 @@
         <div class="services">
           <div class="service-card">
             <img
-              src="图片1.jpg"
+              src="images/图片1.jpg"
               alt="青英辅学项目指导专区"
               style="width: 100%; height: auto; border-radius: 8px"
             />
           </div>
           <div class="service-card">
             <img
-              src="图片2.jpg"
+              src="images/图片2.jpg"
               alt="青英辅学竞赛指导中心"
               style="width: 100%; height: auto; border-radius: 8px"
             />
           </div>
           <div class="service-card">
             <img
-              src="图片3.jpg"
+              src="images/图片3.jpg"
               alt="青英辅学论文写作专区"
               style="width: 100%; height: auto; border-radius: 8px"
             />
@@ -558,7 +598,7 @@
   </body>
 </html>
 
-<div class="left-sidebar" style="display: none;">
+<div class="left-sidebar">
   <div class="sidebar-card">
     <div class="sidebar-title">学术服务分类</div>
     <ul class="sidebar-content">
@@ -613,4 +653,3 @@
     </ul>
   </div>
 </div>
-```

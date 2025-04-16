@@ -212,6 +212,26 @@
             .contact-button:hover {
                 background-color: #e65100;
             }
+            .user-actions {
+                display: flex;
+                align-items: center;
+                position: absolute;
+                top: 20px;
+                right: 100px;
+            }
+            .user-action {
+                margin-left: 20px;
+                color: white;
+                font-size: 17px;
+                cursor: pointer;
+            }
+            .user-action:hover {
+                color: #919191;
+            }
+            .user-action.highlight {
+                color: white;
+                font-weight: bold;
+            }
             .icon-container {
                 width: 50px;
                 height: 50px;
@@ -225,17 +245,47 @@
             .all-categories {
                 color: #ff9800;
             }
+            .home-float-btn {
+                position: fixed;
+                left: 20px;
+                top: 20px;
+                width: 50px;
+                height: 50px;
+                background-color: #ffffff;
+                color: #ff9800;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                cursor: pointer;
+                z-index: 1000;
+                transition: all 0.3s ease;
+            }
+            .home-float-btn:hover {
+                background-color: #fff3e0;
+                transform: scale(1.1);
+            }
         </style>
     </head>
 <body>
+    <div class="home-float-btn" onclick="window.location.href='../'">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+    </div>
     <header class="header">
         <div class="logo-title">
-            <img src="青英大学老师logo.png" class="logo">
+            <img src="images/青英大学老师logo.png" class="logo">
             <h1 style="color: white;">青英大学老师</h1>
         </div>
         <div class="search-container">
             <input type="text" class="search-input" placeholder="文章/教授/学科/院校查询">
             <button class="search-button">搜索</button>
+        </div>
+        <div class="user-actions">
+            <div class="user-action">登录</div>
+            <div class="user-action highlight">注册</div>
         </div>
     </header>
 
@@ -330,7 +380,7 @@
 
         <div class="teachers">
             <div class="teacher-card">
-                <img src="teacher1.jpg" alt="李明" class="teacher-avatar">
+                <img src="images/男1.png" alt="李明" class="teacher-avatar">
                 <div class="teacher-name">李明 教授</div>
                 <div class="teacher-school">清华大学计算机科学与技术学院</div>
                 <div class="teacher-department">人工智能</div>
@@ -344,7 +394,7 @@
                 <button class="contact-button">问老师 ¥79</button>
             </div>
             <div class="teacher-card">
-                <img src="teacher2.jpg" alt="张芳" class="teacher-avatar">
+                <img src="images/女1.png" alt="张芳" class="teacher-avatar">
                 <div class="teacher-name">张芳 国奖理工学霸</div>
                 <div class="teacher-school">清华大学计算机科学与技术学院</div>
                 <div class="teacher-department">人工智能</div>
@@ -358,8 +408,8 @@
                 <button class="contact-button">问学霸 ¥99</button>
             </div>
             <div class="teacher-card">
-                <img src="teacher3.jpg" alt="王明" class="teacher-avatar">
-                <div class="teacher-name">王明 副教授</div>
+                <img src="images/女2.png" alt="赵琳琳" class="teacher-avatar">
+                <div class="teacher-name">赵琳琳 副教授</div>
                 <div class="teacher-school">北京大学信息科学技术学院</div>
                 <div class="teacher-department">人工智能</div>
                 <div class="rating">
@@ -372,8 +422,8 @@
                 <button class="contact-button">问老师 ¥49</button>
             </div>
             <div class="teacher-card">
-                <img src="teacher4.jpg" alt="赵琳琳" class="teacher-avatar">
-                <div class="teacher-name">赵琳琳 国奖理工学霸</div>
+                <img src="images/男2.png" alt="王明" class="teacher-avatar">
+                <div class="teacher-name">王明 国奖理工学霸</div>
                 <div class="teacher-school">浙江大学理工学院</div>
                 <div class="teacher-department">人工智能</div>
                 <div class="rating">
