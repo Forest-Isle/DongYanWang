@@ -77,8 +77,18 @@ WSGI_APPLICATION = 'dongyanwang_drf.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # 指定MySQL引擎
+        'NAME': 'dongyanwang',          # 数据库名
+        'USER': 'root',         # MySQL用户名
+        'PASSWORD': '123456',     # MySQL密码
+        'HOST': 'localhost',                   # 数据库主机（本地为localhost）
+        'PORT': '3306',                        # MySQL默认端口
+        'OPTIONS': {
+            'charset': 'utf8mb4',              # 支持完整Unicode（含emoji）
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",  # 严格模式
+            'autocommit': True,                # 自动提交事务
+        },
+        'CONN_MAX_AGE': 300,                   # 连接池存活时间（秒）
     }
 }
 
