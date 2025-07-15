@@ -2,6 +2,26 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+// import axios from 'axios';
+//
+// const onFinish = async (values) => {
+//   try {
+//     setLoading(true);
+//
+//     const res = await axios.post('http://localhost:8000/api/auth/login/', values);
+//     const { token } = res.data.data;
+//
+//     // 保存 token，例如 localStorage
+//     localStorage.setItem('token', token);
+//     message.success('登录成功');
+//     navigate('/');
+//   } catch (error) {
+//     console.error('登录失败:', error);
+//     message.error(error.response?.data?.msg || '登录失败，请重试');
+//   } finally {
+//     setLoading(false);
+//   }
+// };
 
 const { Title, Text } = Typography;
 
