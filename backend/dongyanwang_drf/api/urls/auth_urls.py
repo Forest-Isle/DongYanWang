@@ -1,10 +1,11 @@
 from django.urls import path
-from api.views.auth.login import LoginView
+from api.views.auth.login import LoginView,CaptchaView
 from api.views.auth.register import RegisterView
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
+    path('captcha/', CaptchaView.as_view(), name='captcha')
 ]
 
 # from rest_framework import routers

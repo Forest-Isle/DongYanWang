@@ -10,6 +10,7 @@ class User(DeleteModel):
     username = models.CharField(max_length=150, unique=True, verbose_name='用户名')
     email = models.EmailField(unique=True, verbose_name='邮箱')
     password = models.CharField(max_length=128, verbose_name='密码')  # hash后长度建议128
+    avatar = models.ImageField(upload_to='avatar/%Y')
 
     STATUS_CHOICES = (
         (1, '激活'),
