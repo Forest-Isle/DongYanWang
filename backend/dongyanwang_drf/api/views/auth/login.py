@@ -37,10 +37,10 @@ class CaptchaView(APIView):
     """验证码生成视图（支持自定义配置）"""
 
     # 可配置参数
-    IMAGE_WIDTH = 405  # 图片宽度
+    IMAGE_WIDTH = 300  # 图片宽度
     IMAGE_HEIGHT = 35  # 图片高度
-    CODE_LENGTH = 5  # 验证码长度
-    FONT_SIZE = 80 # 字体大小
+    CODE_LENGTH = 4  # 验证码长度
+    FONT_SIZE = 25 # 字体大小
     SESSION_KEY = 'captcha'  # session存储键名
 
     @staticmethod
@@ -53,12 +53,11 @@ class CaptchaView(APIView):
         )
 
     def get_font(self):
-        """获取字体对象（带fallback处理）"""
         try:
-            # 尝试加载自定义字体（请确保路径正确）
-            return ImageFont.truetype('static/font/111.ttf', self.FONT_SIZE)
-        except:
-            # 回退到默认字体
+            font_path = r"D:\ProgramData\DongYanWang\backend\dongyanwang_drf\api\views\auth\111.ttf"
+            return ImageFont.truetype(font_path, self.FONT_SIZE)
+        except Exception as e:
+            print(f"字体加载失败：{e}")
             return ImageFont.load_default()
 
     def generate_code(self):

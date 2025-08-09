@@ -14,7 +14,7 @@ const journalData = {
   name: 'Nature',
   cover: 'http://www.gxaai.com/uploadfile/2019/0802/20190802105017335.jpg',
   averageReviewTime: '网友分享经验：平均6.5个月',
-  acceptanceRate: '网友分享经验：约10.62%',
+ c: '网友分享经验：约10.62%',
   officialWebsite: 'https://www.nature.com/nature',
   authorGuide: 'https://www.nature.com/nature/for-authors',
   impactFactor: 50.5,
