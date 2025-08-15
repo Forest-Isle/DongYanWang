@@ -1,74 +1,237 @@
+from api.models.content import Content
+from api.models.user import User,DeleteModel
+from django.utils import timezone
 from django.db import models
-from models.content import ContentType
-from models.user import User,DeleteModel
-
-# 个人站点表
-# 话题表
-class Topic(DeleteModel):
-    title = models.CharField(max_length=32, verbose_name='话题', db_index=True)
-    is_hot = models.BooleanField(verbose_name='热门话题', default=False)
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 
-# 资讯表
-class News(DeleteModel):
-    title = models.CharField(verbose_name='文字', max_length=150)
-    # 上传图片(多张图片, 用逗号隔开图片地址)
-    image = models.TextField(verbose_name='图片地址', null=True, blank=True)
-    # 链接
-    url = models.CharField(verbose_name='链接', max_length=200, null=True, blank=True)
 
-    # 一对多话题:一个资讯属于一个话题, 一个话题下有多个资讯
-    topic = models.ForeignKey('Topic', on_delete=models.CASCADE)
-    # 一对多用户
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+class BasePost(DeleteModel):
+    """
+    帖子基础模型（抽象基类）
+    """
+    POST_TYPES = (
+        ('journal', '学术论文'),
+        ('project', '科研项目'),
+        ('competition', '学科竞赛'),
+        ('internship', '实习机会'),
+        ('news', '行业资讯'),
+        ('admissions', '招生机会')
+    )
 
-    status_choices = ((1, '待审核'), (2, '通过'), (3, '未通过'))
-    status = models.IntegerField(choices=status_choices, verbose_name='状态', default=1)
+    STATUS_CHOICES = (
+        ('draft', '草稿'),
+        ('pending', '待审核'),
+        ('published', '已发布'),
+        ('rejected', '已拒绝'),
+        ('archived', '已归档'),
+    )
 
-    collect_count = models.BigIntegerField(verbose_name='收藏数', default=0)
-    recommend_count = models.BigIntegerField(verbose_name='推荐数', default=0)
-    comment_count = models.BigIntegerField(default=0, verbose_name='评论数')
+    title = models.CharField(max_length=200, verbose_name='标题')
+    creator = models.ForeignKey('User', on_delete=models.CASCADE, verbose_name='创建者')
+    post_type = models.CharField(max_length=20, choices=POST_TYPES, editable=False)
+    # 富文本内容（支持Markdown/HTML）
+    content = models.TextField(verbose_name='内容')
+    content_format = models.CharField(
+        max_length=10,
+        choices=[('md', 'Markdown'), ('html', 'HTML')],
+        default='md',
+        verbose_name='内容格式'
+    )
+    post_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_time = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+
+    # 通用关系字段用于关联各种交互
+    interactions = GenericRelation('Interaction')
+    comments = GenericRelation('Comment')
+
+    class Meta:
+        abstract = True
+        indexes = [
+            models.Index(fields=['post_type', 'created_time']),
+            models.Index(fields=['post_status', 'created_time']),
+            models.Index(fields=['creator', 'post_status']),  # 新增
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.post_type:
+            raise ValueError("post_type 必须在子类显式指定")
+        super().save(*args, **kwargs)
+
+    @property
+    def like_count(self):
+        return self.interactions.filter(interaction_type='like').count()
+
+    @property
+    def collect_count(self):
+        return self.interactions.filter(interaction_type='collect').count()
+
+    @property
+    def comment_count(self):
+        return self.comments.count()
 
 
-# 推荐表
-class Recommend(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    news = models.ForeignKey('News', on_delete=models.CASCADE)
-    create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+class PostAttachment(models.Model):
+    """
+    帖子附件模型（支持多类型内容）
+    """
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    file = models.FileField(upload_to='post_attachments/%Y/%m/')
+    file_type = models.CharField(max_length=50, blank=True)  # image, video, document等
+    file_size = models.PositiveIntegerField(help_text="文件大小(字节)")
+    order = models.PositiveSmallIntegerField(default=0)
+    upload_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = '帖子附件'
+        verbose_name_plural = '帖子附件'
 
 
-# 收藏表
-class Collect(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    news = models.ForeignKey('News', on_delete=models.CASCADE)
-    create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+class Interaction(models.Model):
+    """
+    通用交互行为模型（替代原有的Recommend/Collect/UpAndDown等模型）
+    """
+    INTERACTION_TYPES = (
+        ('like', '点赞'),
+        ('collect', '收藏'),
+        ('share', '分享'),
+        ('report', '举报'),
+        ('view', '浏览'),
+    )
+
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='interactions')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    interaction_type = models.CharField(max_length=10, choices=INTERACTION_TYPES)
+    created_time = models.DateTimeField(auto_now_add=True)
+    metadata = models.JSONField(default=dict, blank=True)  # 存储额外信息，如分享渠道、举报原因等
+
+    class Meta:
+        unique_together = ('user', 'content_type', 'object_id', 'interaction_type')
+        indexes = [
+            models.Index(fields=['content_type', 'object_id', 'interaction_type']),
+            models.Index(fields=['user', 'interaction_type']),
+        ]
+        verbose_name = '用户交互'
+        verbose_name_plural = '用户交互'
 
 
-# 评论表
-class Comment(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    news = models.ForeignKey('News', on_delete=models.CASCADE)
-    content = models.CharField(max_length=150, verbose_name='内容')
-    create_time = models.DateTimeField(verbose_name='评论时间', auto_now_add=True)
-    # 根评论
-    root = models.ForeignKey('Comment', on_delete=models.CASCADE,
-                             null=True, blank=True, verbose_name='根评论',
-                             related_name='descendant')
-    # 父评论
-    reply = models.ForeignKey('Comment', on_delete=models.CASCADE, null=True,
-                              verbose_name='回复', related_name='reply_list')
+class Comment(DeleteModel):
+    """
+    通用评论系统（支持多级嵌套）
+    """
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='comments')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
 
-    # 根评论:1-->子评论:2-->孙评论:3
-    depth = models.IntegerField(default=0, verbose_name='深度')
+    content = models.TextField(max_length=1000, verbose_name='评论内容')
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
 
-    # 针对根评论,保存后代更新时间
-    descendant_update_datetime = models.DateTimeField(verbose_name='后代更新时间', auto_now=True)
+    # 评论层级结构
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,
+                               related_name='replies')
+    root = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL,
+                             related_name='descendants')
+    depth = models.PositiveSmallIntegerField(default=0)
 
-# 点赞点踩表
-class UpAndDown(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    topic = models.ForeignKey('Topic', on_delete=models.CASCADE)
-    is_up = models.BooleanField()
+    # 互动统计
+    like_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_time']
+        indexes = [
+            models.Index(fields=['content_type', 'object_id']),
+            models.Index(fields=['root']),
+        ]
+        verbose_name = '评论'
+        verbose_name_plural = '评论'
+
+    def save(self, *args, **kwargs):
+        # 自动计算评论层级
+        if self.parent:
+            self.depth = self.parent.depth + 1
+            if self.parent.root:
+                self.root = self.parent.root
+            else:
+                self.root = self.parent
+        super().save(*args, **kwargs)
+
+
+class DiscussionPost(BasePost):
+    """
+    社区讨论模型
+    """
+    tags = models.ManyToManyField('Tag', blank=True)
+    is_sticky = models.BooleanField(default=False, verbose_name='置顶')
+
+    class Meta:
+        verbose_name = '社区讨论'
+        verbose_name_plural = '社区讨论'
+
+
+class ResourcePost(BasePost):
+    """
+    资源分享模型
+    """
+    resource_type = models.CharField(max_length=50)
+    download_count = models.PositiveIntegerField(default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    class Meta:
+        verbose_name = '资源分享'
+        verbose_name_plural = '资源分享'
+
+
+class NewsPost(BasePost):
+    """
+    资讯模型（整合原有News功能）
+    """
+    topic = models.ForeignKey('Topic', on_delete=models.SET_NULL, null=True, blank=True)
+    external_url = models.URLField(null=True, blank=True)
+    cover_image = models.URLField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = '资讯'
+        verbose_name_plural = '资讯'
+
+
+
+
+# 辅助模型
+class Tag(models.Model):
+    """
+    标签模型
+    """
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = '标签'
+        verbose_name_plural = '标签'
+
+
+class Topic(models.Model):
+    """
+    话题模型
+    """
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    cover_image = models.URLField(blank=True)
+    is_featured = models.BooleanField(default=False)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = '话题'
+        verbose_name_plural = '话题'

@@ -1,11 +1,19 @@
 from django.db import models
-
+from django.utils import timezone
 class DeleteModel(models.Model):
-    is_delete = models.BooleanField(verbose_name='是否删除', default=False)
+    """
+    软删除基类模型
+    """
+    is_deleted = models.BooleanField(default=False, verbose_name='已删除')
+    deleted_time = models.DateTimeField(null=True, blank=True, verbose_name='删除时间')
 
     class Meta:
-        abstract = True  # 不生成表，仅作为基类使用
+        abstract = True
 
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.deleted_time = timezone.now()
+        self.save()
 class User(DeleteModel):
     username = models.CharField(max_length=150, unique=True, verbose_name='用户名')
     email = models.EmailField(unique=True, verbose_name='邮箱')
