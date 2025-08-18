@@ -5,14 +5,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from api.serializers.user import LoginSerializer
 from api.utils.response_util import success_response, error_response
-import uuid
-from datetime import datetime, timedelta
 import random
 from io import BytesIO
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 from django.http import HttpResponse
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken, TokenError
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -20,18 +23,48 @@ class LoginView(APIView):
         if serializer.is_valid():
             user = serializer.validated_data['user']
             # 简易 token 生成（建议用 JWT 替代）
-            user.token = uuid.uuid4().hex
-            user.token_expiry = datetime.now() + timedelta(days=7)
-            user.save()
+            refresh = RefreshToken.for_user(user)
+
             return success_response({
+                "user_id": user.id,
+                "username": user.username,
                 "email": user.email,
-                "token": user.token,
-                "token_expiry": user.token_expiry
+                 "avatar": user.avatar.url if user.avatar else None,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh),
             }, msg="登录成功")
         return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
 
+class LogoutView(APIView):
+    """
+    登出接口：
+    1. 前端传 refresh token，会被加入黑名单，防止刷新。
+    2. 前端需要清理 access token。
+    """
+    permission_classes = [IsAuthenticated]
 
+    def post(self, request):
+        # 从请求头获取 access token
+        auth_header = request.headers.get("Authorization", "")
+        access_token_str = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else None
+        refresh_token_str = request.data.get("refresh")
 
+        try:
+            # 处理 refresh token 黑名单
+            if refresh_token_str:
+                token = RefreshToken(refresh_token_str)
+                token.blacklist()  # 加入黑名单
+            # 可选：检查 access token 是否有效
+            if access_token_str:
+                try:
+                    AccessToken(access_token_str)  # 如果无效会抛异常
+                except TokenError:
+                    pass  # access token 过期或者无效，忽略
+            return Response({"msg": "退出登录成功"}, status=status.HTTP_200_OK)
+        except TokenError as e:
+            return Response({"msg": "退出失败", "error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"msg": "退出失败", "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CaptchaView(APIView):
     """验证码生成视图（支持自定义配置）"""
@@ -152,3 +185,11 @@ class CaptchaView(APIView):
         response['Expires'] = '0'
 
         return response
+
+class CaptchaVerifyView(APIView):
+    def post(self, request):
+        code = request.data.get("code")
+        session_data = request.session.get("captcha")
+        if not session_data or session_data['code'].lower() != code.lower():
+            return error_response("验证码错误", 400)
+        return success_response(msg="验证码正确")

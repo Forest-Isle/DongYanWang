@@ -101,7 +101,7 @@ class Project(Content):
     # 资金相关：保留两位小数，单位：万元（或根据需要改为元）
     funding_amount = models.DecimalField(
         max_digits=12, decimal_places=2, default=0,
-        verbose_name="立项经费(万元)"
+        verbose_name="立项经费"
     )
 
     # 生命周期
@@ -125,6 +125,10 @@ class Project(Content):
             models.Index(fields=["funding_agency"]),
             models.Index(fields=["is_cooperation"]),
         ]
+
+    def save(self, *args, **kwargs):
+        self.content_type = 'project'
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"{self.name}({self.code})"

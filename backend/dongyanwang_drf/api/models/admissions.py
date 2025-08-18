@@ -78,6 +78,10 @@ class Admissions(Content):
     is_scholarship = models.BooleanField(default=False, verbose_name='是否提供奖学金')
     is_competitive = models.BooleanField(default=True, verbose_name='是否竞争激烈')
     last_update = models.DateTimeField(auto_now=True, verbose_name='最后更新')
+    scholarship_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        verbose_name="奖学金"
+    )
 
     sub_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="applying", verbose_name="项目状态")
 

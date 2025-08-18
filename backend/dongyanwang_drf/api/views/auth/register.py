@@ -9,7 +9,10 @@ from api.services.auth import register_user
 
 class RegisterView(APIView):
     def post(self, request):
-        register_user(request.data)
+        try:
+            register_user(request.data)  # 仅做校验
+        except Exception as e:
+            return error_response(str(e), code=status.HTTP_400_BAD_REQUEST)
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

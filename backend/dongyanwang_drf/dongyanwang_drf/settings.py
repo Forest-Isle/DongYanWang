@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from datetime import timedelta
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "api.middleware.request_id.RequestIDMiddleware",
 ]
 
 ROOT_URLCONF = 'dongyanwang_drf.urls'
@@ -153,3 +161,77 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # AUTH_USER_MODEL = 'api.models.user.User'
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.AllowAny",
+    ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "EXCEPTION_HANDLER": "api.utils.exceptions.drf_exception_handler",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.AnonRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "user": "2000/hour",
+        "anon": "200/hour",
+    },
+}
+
+# 上传限制（按需微调）
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2048 * 1024 * 1024  # 2048MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2048 * 1024 * 1024  # 2048MB
+
+
+# 简单结构化日志（可接 ELK/Graylog）
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json": {
+            "format": '{"time":"%(asctime)s","level":"%(levelname)s","name":"%(name)s","message":"%(message)s"}'
+        },
+        "simple": {"format": "%(levelname)s %(name)s: %(message)s"},
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "root": {"handlers": ["console"], "level": "INFO"},
+}
+
+if not DEBUG:
+    # 生产环境用 OSS
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    AWS_ACCESS_KEY_ID = "你的access_key"
+    AWS_SECRET_ACCESS_KEY = "你的secret_key"
+    AWS_STORAGE_BUCKET_NAME = "你的bucket"
+    AWS_S3_REGION_NAME = "你的region"
+    AWS_QUERYSTRING_AUTH = False  # URL 直接访问
+else:
+    # 开发环境用本地
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+
+SIMPLE_JWT = {
+    # 访问 token 有效期 (比如 30 分钟)
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+
+    # 刷新 token 有效期 (比如 7 天)
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+
+    # 是否旋转 refresh token（每次刷新会生成新的 refresh）
+    "ROTATE_REFRESH_TOKENS": False,
+
+    # 是否黑名单旧的 refresh token（需要安装 blacklis app）
+    "BLACKLIST_AFTER_ROTATION": True,
+
+    # 其他配置保持默认即可
+}
+
+AUTH_USER_MODEL = "api.User"

@@ -16,7 +16,7 @@ class BasePost(DeleteModel):
         ('project', '科研项目'),
         ('competition', '学科竞赛'),
         ('internship', '实习机会'),
-        ('news', '行业资讯'),
+        ('skill', '科研技巧'),
         ('admissions', '招生机会')
     )
 
@@ -167,71 +167,4 @@ class Comment(DeleteModel):
         super().save(*args, **kwargs)
 
 
-class DiscussionPost(BasePost):
-    """
-    社区讨论模型
-    """
-    tags = models.ManyToManyField('Tag', blank=True)
-    is_sticky = models.BooleanField(default=False, verbose_name='置顶')
 
-    class Meta:
-        verbose_name = '社区讨论'
-        verbose_name_plural = '社区讨论'
-
-
-class ResourcePost(BasePost):
-    """
-    资源分享模型
-    """
-    resource_type = models.CharField(max_length=50)
-    download_count = models.PositiveIntegerField(default=0)
-    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-
-    class Meta:
-        verbose_name = '资源分享'
-        verbose_name_plural = '资源分享'
-
-
-class NewsPost(BasePost):
-    """
-    资讯模型（整合原有News功能）
-    """
-    topic = models.ForeignKey('Topic', on_delete=models.SET_NULL, null=True, blank=True)
-    external_url = models.URLField(null=True, blank=True)
-    cover_image = models.URLField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = '资讯'
-        verbose_name_plural = '资讯'
-
-
-
-
-# 辅助模型
-class Tag(models.Model):
-    """
-    标签模型
-    """
-    name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = '标签'
-        verbose_name_plural = '标签'
-
-
-class Topic(models.Model):
-    """
-    话题模型
-    """
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    cover_image = models.URLField(blank=True)
-    is_featured = models.BooleanField(default=False)
-    created_time = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = '话题'
-        verbose_name_plural = '话题'

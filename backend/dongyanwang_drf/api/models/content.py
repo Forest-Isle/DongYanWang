@@ -14,7 +14,7 @@ class Content(DeleteModel):
         ('project', '科研项目'),
         ('competition', '学科竞赛'),
         ('internship', '实习机会'),
-        ('news', '行业资讯'),
+        ('skill', '科研技巧'),
         ('admissions', '招生机会')
     )
     content_type = models.CharField(max_length=20, choices=CONTENT_CHOICES, verbose_name='内容类型')

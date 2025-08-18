@@ -143,6 +143,11 @@ class SkillPost(BasePost):
     class Meta:
         ordering = ["-created_time"]
 
+    def save(self, *args, **kwargs):
+        # 固定 post_type 为 journal
+        self.post_type = 'skill'
+        super().save(*args, **kwargs)
+
     @property
     def comment_count(self):
         return self.comment_count_cache or self.comments.count()

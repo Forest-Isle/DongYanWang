@@ -104,6 +104,9 @@ class Competition(Content):
             models.Index(fields=['name']),
             models.Index(fields=['is_national']),
         ]
+    def save(self, *args, **kwargs):
+        self.content_type = 'competition'
+        super().save(*args, **kwargs)
 
     # —— 快捷取“当前年度”指标 —— #
     @property
