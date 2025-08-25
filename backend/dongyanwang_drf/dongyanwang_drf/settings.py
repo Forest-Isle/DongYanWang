@@ -46,7 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    'django_filters'
+    'django_filters',
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -127,11 +129,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'Asia/Shanghai'  # 时区设置
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False  # 修改为fslse，数据库储存北京时间；为true数据库显示UTC时间，前端渲染调用才展示北京时间
 
 
 # Static files (CSS, JavaScript, Images)
@@ -160,27 +162,76 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Redis 缓存 & Celery
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/2"
+CELERY_RESULT_BACKEND = "django-db"  # django_celery_results
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Shanghai"
+CELERY_BEAT_SCHEDULE = {
+    # 每5分钟把热榜刷回数据库（可选）
+    "flush_hot_ranks": {
+        "task": "api.tasks.flush_hot_ranks",
+        "schedule": 300.0,
+    },
+}
+
 # AUTH_USER_MODEL = 'api.models.user.User'
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.AllowAny",
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 10,
+    "PAGE_SIZE": 20,
     "EXCEPTION_HANDLER": "api.utils.exceptions.drf_exception_handler",
+
     "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.UserRateThrottle",
-        "rest_framework.throttling.AnonRateThrottle",
+        "api.throttles.SlidingWindowAnonThrottle",
+        "api.throttles.SlidingWindowUserThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": "2000/hour",
+        "user": "1000/hour",
         "anon": "200/hour",
     },
 }
+
+# OpenSearch/Elasticsearch 直连（选其一）
+SEARCH_ENGINE = {
+    "BACKEND": "elasticsearch",
+    "HOSTS": ["https://localhost:9200"],  # 用 https，因为安全认证启用
+    "USER": "elastic",                   # 启动 ES 时显示的用户名
+    "PASSWORD": "lWdkp=grtsBFoUVLLL7x", # 启动时生成的密码
+    "VERIFY_SSL": False,                 # 如果没配置证书信任，可以先关闭
+    "INDEX_PREFIX": "dyw_",
+}
+
+
+# Webhook
+WEBHOOK_RETRY = {"max_retries": 5, "retry_backoff": [10, 30, 60, 120, 300]}  # 秒
+
+# 允许文件导出存到 MEDIA_ROOT/exports/
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+EXPORT_DIR = MEDIA_ROOT / "exports"
+EXPORT_DIR.mkdir(parents=True, exist_ok=True)
+
+# 热榜 Key 前缀
+HOTSET_PREFIX = "hot:post"  # ZSET: f"{HOTSET_PREFIX}:{model_label}"
 
 # 上传限制（按需微调）
 DATA_UPLOAD_MAX_MEMORY_SIZE = 2048 * 1024 * 1024  # 2048MB

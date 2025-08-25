@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('api.urls.auth_urls')),
+    path('api/competition/', include('api.urls.competition_urls')),
 ]
 
 if settings.DEBUG:

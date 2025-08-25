@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 def avatar_upload_to(instance, filename):
@@ -140,11 +142,16 @@ class UserStats(models.Model):
 
     user = models.OneToOneField("User", on_delete=models.CASCADE, related_name="stats")
 
+    @receiver(post_save, sender=User)
+    def create_user_stats(sender, instance, created, **kwargs):
+        if created:
+            UserStats.objects.create(user=instance)
+
     def update_stats(self):
         """更新统计字段：以 creator 为准"""
-        from .models import PaperPost, ProjectPost, CompetitionPost,  Follow
+        from api.models import JournalPost, ProjectPost, CompetitionPost,  Follow
         # 用户创建的论文帖子数量
-        self.papers_post = PaperPost.objects.filter(creator=self.user).count()
+        self.papers_post = JournalPost.objects.filter(creator=self.user).count()
         # 用户创建的项目帖子数量
         self.projects_post = ProjectPost.objects.filter(creator=self.user).count()
         # 用户创建的竞赛帖子数量

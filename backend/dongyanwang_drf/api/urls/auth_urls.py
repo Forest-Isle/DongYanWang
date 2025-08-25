@@ -1,16 +1,24 @@
 from django.urls import path
-from api.views.auth.login import LoginView,CaptchaView,CaptchaVerifyView,LogoutView
+from api.views.auth.login import (LoginView,CaptchaView,CaptchaVerifyView,LogoutView)
 from api.views.auth.register import RegisterView
 from rest_framework_simplejwt.views import TokenRefreshView
 from api.views.auth.profile import (UserProfileView,UserSkillView,UserInterestView,
                                     UserSocialLinkView, UserActivityView ,UserNotificationView,
-                                    UserUploadAvatarView,UserDeleteView) # 包含更新、获取
+                                    UserUploadAvatarView,UserDeleteView,UserStatsView,
+                                    FollowView, FollowerListView, FollowingListView) # 包含更新、获取
+
+
 
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('register/', RegisterView.as_view(), name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
+
+    path("follow/", FollowView.as_view(),name='follow'),  # 关注/取关
+    path("followers/<int:user_id>/", FollowerListView.as_view(),name='followers'),  # 粉丝
+    path("following/<int:user_id>/", FollowingListView.as_view(),name='following'),  # 关注
+    path("stats/", UserStatsView.as_view(), name="user-stats"),
 
     path('captcha/', CaptchaView.as_view(), name='captcha'),
     path('captcha/verify/',CaptchaVerifyView.as_view(), name='captcha_verify'),

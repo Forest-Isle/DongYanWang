@@ -114,6 +114,7 @@ class Interaction(models.Model):
     created_time = models.DateTimeField(auto_now_add=True)
     metadata = models.JSONField(default=dict, blank=True)  # 存储额外信息，如分享渠道、举报原因等
 
+
     class Meta:
         unique_together = ('user', 'content_type', 'object_id', 'interaction_type')
         indexes = [

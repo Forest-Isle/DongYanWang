@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models.user import User
+from api.models.user import User,Follow
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.files import File
 import os
@@ -113,6 +113,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+from rest_framework import serializers
+
+class FollowSerializer(serializers.ModelSerializer):
+    follower_username = serializers.CharField(source="follower.username", read_only=True)
+    following_username = serializers.CharField(source="following.username", read_only=True)
+
+    class Meta:
+        model = Follow
+        fields = ["id", "follower", "follower_username", "following", "following_username", "created_at"]
 
 # 技能序列化器
 class UserSkillSerializer(serializers.ModelSerializer):
