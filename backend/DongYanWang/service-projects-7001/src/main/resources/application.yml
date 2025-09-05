@@ -1,6 +1,0 @@
-server:
-  port: 7001
-spring:
-  data:
-    mongodb:
-      uri: mongodb://senyu:123456@localhost:27017/dongyanwang

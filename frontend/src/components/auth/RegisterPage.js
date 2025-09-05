@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { authAPI } from '../../services/api';
 
 const { Title, Text } = Typography;
 
@@ -12,18 +13,16 @@ const RegisterPage = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      // 这里将来需要调用实际的注册API
-      console.log('注册表单提交:', values);
-
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 注册成功后的处理
-      message.success('注册成功');
+      
+      // 调用真实的注册API
+      const response = await authAPI.register(values);
+      
+      message.success('注册成功，请登录');
       navigate('/login');
     } catch (error) {
       console.error('注册失败:', error);
-      message.error('注册失败，请稍后再试');
+      const errorMessage = error.response?.data?.msg || error.response?.data?.detail || '注册失败，请稍后再试';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -100,7 +99,7 @@ const RegisterPage = () => {
           </Form.Item>
 
           <Form.Item
-            name="confirmPassword"
+            name="confirm_password"
             dependencies={['password']}
             rules={[
               { required: true, message: '请确认密码' },

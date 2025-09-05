@@ -17,6 +17,9 @@ import { AdmissionsHomePage, AdmissionDetailPage } from './components/admissions
 
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
+import ProfilePage from './components/profile/ProfilePage';
+import TestRegister from './components/auth/TestRegister';
+import DebugAPI from './components/auth/DebugAPI';
 
 // 配置Ant Design主题
 const theme = {
@@ -89,6 +92,9 @@ function App() {
           {/* 认证页面 */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/test" element={<TestRegister />} />
+          <Route path="/debug" element={<DebugAPI />} />
 
           {/* 404页面 */}
           <Route path="*" element={<NotFound />} />

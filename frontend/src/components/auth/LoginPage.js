@@ -2,26 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography, message, Space } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-// import axios from 'axios';
-//
-// const onFinish = async (values) => {
-//   try {
-//     setLoading(true);
-//
-//     const res = await axios.post('http://localhost:8000/api/auth/login/', values);
-//     const { token } = res.data.data;
-//
-//     // 保存 token，例如 localStorage
-//     localStorage.setItem('token', token);
-//     message.success('登录成功');
-//     navigate('/');
-//   } catch (error) {
-//     console.error('登录失败:', error);
-//     message.error(error.response?.data?.msg || '登录失败，请重试');
-//   } finally {
-//     setLoading(false);
-//   }
-// };
+import { authAPI } from '../../services/api';
 
 const { Title, Text } = Typography;
 
@@ -32,18 +13,21 @@ const LoginPage = () => {
   const onFinish = async (values) => {
     try {
       setLoading(true);
-      // 这里将来需要调用实际的登录API
-      console.log('登录表单提交:', values);
-
-      // 模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 登录成功后的处理
+      
+      // 调用真实的登录API
+      const response = await authAPI.login(values);
+      const { access, refresh } = response.data;
+      
+      // 保存token到localStorage
+      localStorage.setItem('auth_token', access);
+      localStorage.setItem('refresh_token', refresh);
+      
       message.success('登录成功');
       navigate('/');
     } catch (error) {
       console.error('登录失败:', error);
-      message.error('登录失败，请检查用户名和密码');
+      const errorMessage = error.response?.data?.msg || error.response?.data?.detail || '登录失败，请检查用户名和密码';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }
