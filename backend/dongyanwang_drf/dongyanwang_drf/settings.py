@@ -165,8 +165,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Redis 缓存 & Celery
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
 
@@ -198,7 +201,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
-    "EXCEPTION_HANDLER": "api.utils.exceptions.drf_exception_handler",
+    # "EXCEPTION_HANDLER": "api.utils.exceptions.drf_exception_handler",
 
     "DEFAULT_THROTTLE_CLASSES": [
         "api.throttles.SlidingWindowAnonThrottle",
@@ -271,7 +274,7 @@ else:
 
 SIMPLE_JWT = {
     # 访问 token 有效期 (比如 30 分钟)
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
 
     # 刷新 token 有效期 (比如 7 天)
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),

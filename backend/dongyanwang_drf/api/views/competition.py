@@ -1,12 +1,11 @@
 # api/views/competition.py
-
-from django.db.models import Count
+from django.db.models import Count,Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-
+from django.db.models import Prefetch
 from api.services.pagination import StandardResultsSetPagination
 from api.services.permissions import IsOwnerOrReadOnly, IsModeratorOrReadOnly
 from api.models.competition import (
@@ -21,9 +20,11 @@ from api.models.article import Interaction
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import F
+from django.utils import timezone
+from datetime import timedelta
 
 class CompetitionViewSet(viewsets.ModelViewSet):
-    queryset = Competition.objects.all().prefetch_related("categories", "metrics")
+
     serializer_class = CompetitionSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
@@ -37,6 +38,51 @@ class CompetitionViewSet(viewsets.ModelViewSet):
         "categories__name": ["exact", "in"],
         "status": ["exact", "in"]
     }
+
+    def get_queryset(self):
+        queryset = Competition.objects.prefetch_related("categories", "metrics")
+        user = self.request.user
+
+        # 管理员可以看到所有竞赛
+        if user.is_staff:
+            return queryset.prefetch_related(
+                Prefetch(
+                    'moderators',
+                    queryset=CompetitionModerator.objects.select_related('user')
+                )
+            )
+
+        # 用户是版主，能看到自己管理的竞赛
+        moderator_competitions = CompetitionModerator.objects.filter(
+            user=user, is_active=True
+        ).values_list("competition_id", flat=True)
+
+        if moderator_competitions.exists():
+            return queryset.filter(
+                Q(status=2) | Q(id__in=moderator_competitions)
+            ).prefetch_related(
+                Prefetch(
+                    'moderators',
+                    queryset=CompetitionModerator.objects.select_related('user')
+                )
+            )
+
+        # 普通用户只能看到审核通过的竞赛
+        return queryset.filter(status=2).prefetch_related(
+            Prefetch(
+                'moderators',
+                queryset=CompetitionModerator.objects.select_related('user')
+            )
+        )
+    def perform_create(self, serializer):
+        # 新建时自动加创建者为版主，并默认 status=待审核
+        competition = serializer.save(status=1)  # 1=待审核
+        # 创建主版主
+        CompetitionModerator.objects.create(
+            competition=competition,
+            user=self.request.user,
+            title='chief'
+        )
 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def follow(self, request, pk=None):
@@ -80,7 +126,7 @@ class CompetitionMetricViewSet(viewsets.ModelViewSet):
 
 
 class CompetitionPostViewSet(viewsets.ModelViewSet):
-    queryset = CompetitionPost.objects.select_related("competition", "creator").all()
+
     serializer_class = CompetitionPostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly | IsModeratorOrReadOnly]
     pagination_class = StandardResultsSetPagination
@@ -95,8 +141,40 @@ class CompetitionPostViewSet(viewsets.ModelViewSet):
     search_fields = ["title", "content"]
     ordering_fields = ["last_activity", "collect_count", "recommend_count", "created_time"]
 
+    def get_queryset(self):
+        queryset = CompetitionPost.objects.select_related("competition", "creator")
+
+        user = self.request.user
+        # 管理员或者版主可以看到所有帖子
+        if user.is_staff:
+            return queryset
+        # 检查用户是否是任何竞赛的版主
+        moderator_competitions = CompetitionModerator.objects.filter(
+            user=user, is_active=True
+        ).values_list("competition_id", flat=True)
+        if moderator_competitions.exists():
+            return queryset.filter(
+                Q(post_status='published') | Q(competition_id__in=moderator_competitions)
+            )
+        # 普通用户只看已发布的
+        return queryset.filter(post_status='published')
+
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def publish(self, request, pk=None):
+        """发布帖子：将状态从draft改为pending"""
+        post = self.get_object()
+        if post.creator != request.user:
+            return Response({"detail": "只有作者可以发布帖子"}, status=status.HTTP_403_FORBIDDEN)
+        
+        if post.post_status != 'draft':
+            return Response({"detail": "只有草稿状态的帖子可以发布"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        post.post_status = 'pending'
+        post.save()
+        return Response({"detail": "帖子已提交审核", "post_status": post.post_status})
 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def like(self, request, pk=None):
@@ -124,14 +202,47 @@ class CompetitionPostViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], permission_classes=[IsAuthenticatedOrReadOnly])
     def view(self, request, pk=None):
-        """浏览计数（无登录也可记一次，可在中间件里做去重，这里做最简版）"""
+        """浏览计数（去重版）"""
         post = self.get_object()
         ct = ContentType.objects.get_for_model(CompetitionPost)
-        # 记录一条 view（可选：对匿名 user 用 UA/IP 做幂等）
-        Interaction.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            content_type=ct, object_id=post.id, interaction_type="view"
-        )
+        now = timezone.now()
+        window = now - timedelta(hours=1)  # 1小时内同一用户/IP只计一次
+
+        # 区分登录用户和匿名用户
+        if request.user.is_authenticated:
+            # 登录用户，查找最近1小时是否有浏览记录
+            exists = Interaction.objects.filter(
+                user=request.user,
+                content_type=ct,
+                object_id=post.id,
+                interaction_type="view",
+                created_time__gte=window
+            ).exists()
+        else:
+            # 匿名用户，用 IP + UA 作为唯一标识
+            ip = request.META.get("REMOTE_ADDR")
+            ua = request.META.get("HTTP_USER_AGENT", "")
+            exists = Interaction.objects.filter(
+                user__isnull=True,
+                content_type=ct,
+                object_id=post.id,
+                interaction_type="view",
+                ip_address=ip,
+                user_agent=ua,
+                created_time__gte=window
+            ).exists()
+
+        if not exists:
+            # 没有重复记录才创建
+            Interaction.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                content_type=ct,
+                object_id=post.id,
+                interaction_type="view",
+                ip_address=request.META.get("REMOTE_ADDR") if not request.user.is_authenticated else None,
+                user_agent=request.META.get("HTTP_USER_AGENT", "") if not request.user.is_authenticated else ""
+            )
+
         return Response({"detail": "ok"}, status=status.HTTP_201_CREATED)
 
 
@@ -155,11 +266,18 @@ class CompetitionPostAttachmentViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
-class CompetitionModeratorViewSet(viewsets.ModelViewSet):
+class CompetitionModeratorViewSet(viewsets.GenericViewSet,
+                                  mixins.CreateModelMixin,
+                                  mixins.ListModelMixin,
+                                  mixins.RetrieveModelMixin):
     queryset = CompetitionModerator.objects.select_related("competition", "user").all()
     serializer_class = CompetitionModeratorSerializer
-    permission_classes = [IsAuthenticated]  # 实际生产建议仅管理员可改
+    permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["competition", "title", "is_active"]
     ordering_fields = ["id"]
+
+    def perform_create(self, serializer):
+        # 用户提交申请 -> 状态默认未激活
+        serializer.save(user=self.request.user, is_active=False)

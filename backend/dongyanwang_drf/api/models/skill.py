@@ -65,7 +65,7 @@ class Skill( Content):
     ]
 
     name = models.CharField(max_length=200, verbose_name="技能名称", db_index=True)
-    cover = models.URLField(verbose_name="封面图", blank=True, null=True)
+    cover = models.ImageField(verbose_name="封面图", blank=True, null=True)
     skill_type = models.CharField(max_length=20, choices=SKILL_TYPE_CHOICES, verbose_name="技能类型")
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, verbose_name="难度")
     description = models.TextField(verbose_name="简介", blank=True)

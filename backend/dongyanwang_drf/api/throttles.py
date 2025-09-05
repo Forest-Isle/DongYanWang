@@ -1,7 +1,8 @@
 # api/throttles.py
 import time
-from django.core.cache import cache
+
 from rest_framework.throttling import BaseThrottle
+from django_redis import get_redis_connection
 
 def _allow_rate(key: str, limit: int, window_sec: int) -> bool:
     """
@@ -9,7 +10,8 @@ def _allow_rate(key: str, limit: int, window_sec: int) -> bool:
     """
     now = int(time.time())
     window_start = now - window_sec
-    pipeline = cache.client.get_client(write=True).pipeline()
+    conn = get_redis_connection("default")  # settings.py CACHE 配置里 default
+    pipeline = conn.pipeline()
     # 使用 Redis ZSET：score=timestamp
     pipeline.zremrangebyscore(key, 0, window_start)
     pipeline.zadd(key, {str(now): now})

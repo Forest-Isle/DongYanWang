@@ -124,6 +124,18 @@ class Interaction(models.Model):
         verbose_name = '用户交互'
         verbose_name_plural = '用户交互'
 
+class Interactionable(models.Model):
+    """
+    如果模型需要支持互动（点赞、评论等），继承这个
+    """
+    interactions = GenericRelation(
+        Interaction,
+        related_query_name="%(app_label)s_%(class)s"
+    )
+
+    class Meta:
+        abstract = True
+
 
 class Comment(DeleteModel):
     """

@@ -25,6 +25,9 @@ def create_indices(client=None):
         client = get_search_client()
 
     ensure_index(client, "competitionpost", POST_MAPPING)
-    # ensure_index(client, "journalpost", JOURNAL_MAPPING)
+    ensure_index(client, "journalpost", POST_MAPPING)
+    ensure_index(client, "admissionspost", POST_MAPPING)
+    ensure_index(client, "projectpost", POST_MAPPING)
+    ensure_index(client, "skillpost", POST_MAPPING)
     # ensure_index(client, "competition", COMPETITION_MAPPING)
     # ensure_index(client, "user", USER_MAPPING)

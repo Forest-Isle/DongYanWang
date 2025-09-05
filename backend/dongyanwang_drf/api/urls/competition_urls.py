@@ -16,8 +16,8 @@ router.register(r"competition-categories", CompetitionCategoryViewSet, basename=
 router.register(r"competition-metrics", CompetitionMetricViewSet, basename="competition-metric")
 router.register(r"competition-posts", CompetitionPostViewSet, basename="competition-post")
 router.register(r"competition-post-attachments", CompetitionPostAttachmentViewSet, basename="competition-post-attachment")
-router.register(r"comments", CommentViewSet, basename="comment")
-router.register(r"interactions", InteractionViewSet, basename="interaction")
-router.register(r"content-stats", ContentStatsViewSet, basename="content-stats")
+router.register(r"competition-moderators", CompetitionModeratorViewSet, basename="competition-moderators")
+
+
 
 urlpatterns = router.urls

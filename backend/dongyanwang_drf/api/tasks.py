@@ -12,21 +12,31 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from api.hot import hot_top
 from api.models.ops import HotRankSnapshot, WebhookEventLog, WebhookConfig
-from api.models import CompetitionPost  # 示例：你可以扩展到其它 Post 子类
-from api.search import get_search_client, ensure_index, index_post, POST_MAPPING
-from api.search_bootstrap import  POST_MAPPING
+from api.models.competition import CompetitionPost, Competition
+from api.models.journal import JournalPost
+from api.models.admissions import AdmissionsPost
+from api.models.project import ProjectPost
+from api.models.skill import SkillPost
+from api.search import get_search_client, ensure_index, index_post
+from api.models.ops import Moderation
+
 @shared_task
 def flush_hot_ranks():
     """
     从 Redis 读取热榜，落库快照（可选）
     """
-    model_label = "competitionpost"
-    items = hot_top(model_label, 100)
-    for rank, (obj_id, score) in enumerate(items, start=1):
-        HotRankSnapshot.objects.create(
-            model_label=model_label, object_id=obj_id, score=score, rank=rank
-        )
-    return {"model": model_label, "count": len(items)}
+    labels = [
+        "competitionpost", "journalpost", "admissionspost", "projectpost", "skillpost"
+    ]
+    total = 0
+    for model_label in labels:
+        items = hot_top(model_label, 100)
+        for rank, (obj_id, score) in enumerate(items, start=1):
+            HotRankSnapshot.objects.create(
+                model_label=model_label, object_id=obj_id, score=score, rank=rank
+            )
+        total += len(items)
+    return {"labels": labels, "total": total}
 
 @shared_task(bind=True, max_retries=settings.WEBHOOK_RETRY["max_retries"])
 def send_webhook(self, event: str, payload: dict):
@@ -84,24 +94,19 @@ def export_logs_xlsx():
     default_storage.save(str(path), ContentFile(buf.getvalue()))
     return {"file": f"/media/exports/{path.name}"}
 
+
+
+
+
 @shared_task
-def reindex_competition_posts():
-    """
-    重建索引（CompetitionPost 示例）
-    """
-    client = get_search_client()
-    ensure_index(client, "competitionpost", POST_MAPPING)
-    qs = CompetitionPost.objects.all().select_related("creator")
-    for p in qs:
-        body = {
-            "title": p.title,
-            "content": p.content,
-            "creator_id": p.creator_id,
-            "creator_username": p.creator.username if p.creator_id else "",
-            "post_type": p.post_type,
-            "created_time": p.created_time.isoformat(),
-            "is_banned": False,  # 可结合 Moderation 最新记录
-            "status": p.post_status,
-        }
-        index_post(client, "competitionpost", p.pk, body)
-    return {"count": qs.count()}
+def reindex_all_posts():
+    post_models = [CompetitionPost, JournalPost, AdmissionsPost, ProjectPost, SkillPost]
+    for Model in post_models:
+        qs = Model.objects.filter(post_status="published")
+        for post in qs:
+            latest_moderation = Moderation.objects.filter(
+                content_type=ContentType.objects.get_for_model(post),
+                object_id=post.id
+            ).order_by("-created_at").first()
+            is_banned = latest_moderation.status == "banned" if latest_moderation else False
+            index_post(post, extra={"is_banned": is_banned})

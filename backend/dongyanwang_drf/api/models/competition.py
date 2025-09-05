@@ -70,14 +70,16 @@ class CompetitionCategory(models.Model):
             )
         ).filter(current_deadline__lte=before_date)
 
-
+def competition_cover_path(instance, filename):
+    # 文件会上传到 media/competition/<competition_id>/<filename>
+    return f"competition/{instance.id}/{filename}"
 class Competition(Content):
     """
     竞赛实体：如“全国大学生数学建模竞赛”
     继承 Content 以统一你的内容体系（paper/admissions/competition/...）
     """
     name = models.CharField(max_length=200, verbose_name='竞赛名称', db_index=True)
-    cover = models.URLField(verbose_name='封面图')
+    cover = models.ImageField(verbose_name='封面图',upload_to="competition/covers/")
     official_website = models.URLField(verbose_name='竞赛官网')
     organizer = models.CharField(max_length=150, verbose_name='主办单位')
     location = models.CharField(max_length=100, verbose_name='地点', blank=True, default='')

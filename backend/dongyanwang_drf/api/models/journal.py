@@ -82,7 +82,7 @@ class Journal(Content):
     """学术期刊模型"""
     name = models.CharField(max_length=200, verbose_name='期刊名称', db_index=True)
     issn = models.CharField(max_length=9, unique=True, verbose_name='ISSN号')
-    cover = models.URLField(verbose_name='期刊封面')
+    cover = models.ImageField(verbose_name='期刊封面')
     publisher = models.CharField(max_length=100, verbose_name='出版商')
     journal_url = models.URLField(max_length=200, verbose_name='期刊官网')
 
@@ -129,6 +129,8 @@ class Journal(Content):
                 .first()
             )
         return self._cached_quartile
+
+
 
 class JournalMetric(models.Model):
     """期刊年度指标（时间序列数据）"""

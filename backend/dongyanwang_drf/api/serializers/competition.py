@@ -5,10 +5,25 @@ from api.models.competition import (
     CompetitionCategory, CompetitionModerator, CompetitionPostAttachment
 )
 from api.models.content import ContentStats
+import os
 class CompetitionMetricSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompetitionMetric
         fields = "__all__"
+
+    def create(self, validated_data):
+        return Competition.objects.create(**validated_data)
+
+    def to_internal_value(self, data):
+        try:
+            return super().to_internal_value(data)
+        except serializers.ValidationError as e:
+            # 如果验证失败，删除已上传文件
+            cover = data.get("cover")
+            if cover and hasattr(cover, 'temporary_file_path'):
+                # 临时文件
+                os.remove(cover.temporary_file_path())
+            return {}
 
 
 class CompetitionCategorySerializer(serializers.ModelSerializer):
@@ -68,6 +83,8 @@ class CompetitionPostSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["creator"] = self.context["request"].user
+        # Post类初始状态为draft，发布后变为pending
+        validated_data.setdefault("post_status", "draft")
         return super().create(validated_data)
 
 class ContentStatsSerializer(serializers.ModelSerializer):

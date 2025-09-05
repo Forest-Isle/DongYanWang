@@ -85,7 +85,7 @@ class Project(Content):
     name = models.CharField(max_length=200, db_index=True, verbose_name="项目名称")
     code = models.CharField(max_length=50, unique=True, verbose_name="项目编号")
 
-    cover = models.URLField(blank=True, verbose_name="封面图")
+    cover = models.ImageField(blank=True, verbose_name="封面图")
     official_website = models.URLField(blank=True, verbose_name="官方网站")
     application_guide = models.URLField(blank=True, verbose_name="申报/指南链接")
 
@@ -283,6 +283,35 @@ class ProjectPostAttachment(models.Model):
             models.Index(fields=["post", "order"]),
         ]
         verbose_name = "项目帖子附件"
+        verbose_name_plural = verbose_name
+
+
+# ------------------------------------------------------------
+# 项目参与报名（用户报名/加入项目）
+# ------------------------------------------------------------
+class ProjectEnrollment(models.Model):
+    STATUS_CHOICES = [
+        ("applied", "已申请"),
+        ("approved", "已通过"),
+        ("rejected", "已拒绝"),
+        ("cancelled", "已取消"),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="enrollments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_enrollments")
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default="applied")
+    motivation = models.TextField(blank=True, default="", verbose_name="申请动机")
+    role_expectation = models.CharField(max_length=64, blank=True, default="", verbose_name="期望角色")
+    created_time = models.DateTimeField(auto_now_add=True)
+    updated_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("project", "user")
+        indexes = [
+            models.Index(fields=["project", "status"]),
+            models.Index(fields=["user", "status"]),
+        ]
+        verbose_name = "项目报名"
         verbose_name_plural = verbose_name
 
 

@@ -24,6 +24,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('api.urls.auth_urls')),
     path('api/competition/', include('api.urls.competition_urls')),
+    path('api/admissions/', include('api.urls.admissions_urls')),
+    path('api/project/', include('api.urls.project_urls')),
+    path('api/skill/', include('api.urls.skill_urls')),
+    path('api/consultation/', include('api.urls.consultation_urls')),
+    path('api/journal/', include('api.urls.journal_urls')),
+    path('api/', include('api.urls.admin_urls')),
+    path('api/article/', include('api.urls.article_url')),
+    path('api/debug/', include('api.urls.debug_urls'))
 ]
 
 if settings.DEBUG:

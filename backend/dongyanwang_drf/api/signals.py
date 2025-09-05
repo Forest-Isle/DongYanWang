@@ -11,27 +11,35 @@ from django.contrib.contenttypes.models import ContentType
 
 from api.models.article import Comment, Interaction
 from api.models.competition import CompetitionPost
+from api.models.journal import JournalPost
+from api.models.admissions import AdmissionsPost
+from api.models.project import ProjectPost
+from api.models.skill import SkillPost
 from api.models.content import ContentStats  # 或你的实际路径
 
 @receiver([post_save, post_delete], sender=Comment)
 def sync_comment_cache_on_change(sender, instance: Comment, **kwargs):
     ct = ContentType.objects.get_for_id(instance.content_type_id)
     model = ct.model_class()
-    if model is CompetitionPost:
+    target_models = [CompetitionPost, JournalPost, AdmissionsPost, ProjectPost, SkillPost]
+    if model in target_models:
         post = model.objects.filter(pk=instance.object_id).first()
         if post:
-            # 实时同步评论数缓存
             total = Comment.objects.filter(
                 content_type_id=instance.content_type_id, object_id=instance.object_id
             ).count()
-            CompetitionPost.objects.filter(pk=post.pk).update(comment_count_cache=total)
+            # 更新通用字段名（各模型一致）
+            model.objects.filter(pk=post.pk).update(comment_count_cache=total)
 
 @receiver(post_save, sender=Interaction)
 def touch_stats_on_interaction_create(sender, instance: Interaction, created, **kwargs):
     if not created:
         return
+    model_class = instance.content_type.model_class()
     # 点赞/收藏等可以统一计入 ContentStats 的 like_count（按需）
     if instance.interaction_type in ("like", "collect"):
+        if model_class.__name__ == "Comment":
+            return
         stats, _ = ContentStats.objects.get_or_create(
             content_type_id=instance.content_type_id, object_id=instance.object_id
         )

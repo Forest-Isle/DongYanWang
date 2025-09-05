@@ -15,9 +15,6 @@ except Exception:
 from elasticsearch import Elasticsearch
 from django.conf import settings
 
-from elasticsearch import Elasticsearch
-from django.conf import settings
-
 def get_search_client() -> Elasticsearch:
     """
     返回 Elasticsearch 客户端，支持安全认证
@@ -44,9 +41,28 @@ def ensure_index(client, model_label: str, mappings: dict):
     if not client.indices.exists(index=name):
         client.indices.create(index=name, body=mappings)
 
-def index_post(client, model_label: str, pk: int, body: dict):
-    name = index_name(model_label)
-    client.index(index=name, id=pk, body=body, refresh="true")
+
+def index_post(post, extra=None):
+    """
+    更新搜索索引，extra 可以传额外字段，比如 is_banned
+    """
+    data = {
+        "title": getattr(post, "title", ""),
+        "content": getattr(post, "content", ""),
+        "creator_id": getattr(post, "creator_id", None),
+        "creator_username": getattr(getattr(post, "creator", None), "username", None),
+        "post_type": getattr(post, "post_type", None),
+        "created_time": getattr(post, "created_time", None).isoformat() if getattr(post, "created_time", None) else None,
+    }
+    if extra:
+        data.update(extra)
+
+    client = get_search_client()
+    model_label = post.__class__.__name__.lower()
+    ensure_index(client, model_label, {
+        "settings": {"number_of_shards": 1, "number_of_replicas": 0}
+    })
+    client.index(index=index_name(model_label), id=post.id, document=data, refresh="true")
 
 def delete_post(client, model_label: str, pk: int):
     name = index_name(model_label)
